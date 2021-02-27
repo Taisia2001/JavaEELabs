@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Add Book</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+</head>
+<body>
+<div class="container">
+    <h3>Add book</h3>
+</div>
+<div class="container">
+<form action="/add-book" method="post">
+    <div class="form-group">
+        <label>Isbn</label>
+        <input class="form-control" name="isbn" required type="text"/>
+    </div>
+    <div class="form-group">
+        <label>Title</label>
+        <input class="form-control" name="title" required type="text"/>
+    </div>
+    <div class="form-group">
+        <label>Author</label>
+        <input class="form-control" name="author" required type="text"/>
+    </div>
+        <button type="submit" class="btn btn-success" >Add Book</button>
+        <a class="btn btn-secondary" href="/books-list">To books list</a>
+
+</form>
+</div>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Books</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+</head>
+<body>
+<div class="alert alert-danger" role="alert" th:text="${error}" th:if="${error}"></div>
+<div class="container m-3">
+    <h3>Books List</h3>
+</div>
+<div class="text-center" th:if="${books.isEmpty()}">
+    <h3>No books in this list.</h3>
+</div>
+<div class="container m-3" th:if="${!books.isEmpty()}">
+<table class="table table-bordered table-hover">
+    <thead>
+    <th>ISBN</th>
+    <th>TITLE</th>
+    <th>AUTHOR</th>
+    </thead>
+    <tbody>
+    <tr th:each="book: ${books}">
+        <td th:text="${book.isbn}"></td>
+        <td th:text="${book.title}"></td>
+        <td th:text="${book.author}"></td>
+    </tr>
+    </tbody>
+</table>
+</div>
+<div class="container m-3">
+    <a class="btn btn-success" href="/add-book">Add Book</a>
+</div>
+
+</body>
+</html>
