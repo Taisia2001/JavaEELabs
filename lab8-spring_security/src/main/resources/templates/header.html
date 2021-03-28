@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+
+<header class="header">
+    <nav class="navbar">
+        <div class="container">
+            <a href="#" class="navbar-brand text-uppercase font-weight-bold">Book_Storage</a>
+            <a href="/books-list" class="nav-link text-uppercase font-weight-bold">Home</a>
+            <a th:if="${#authorization.expression('hasAuthority(''VIEW_FAVOURITE'')')}" id="favourite" href="/favourite" class="nav-link text-uppercase font-weight-bold">Favourite</a>
+            <a th:if="${#authorization.expression('isFullyAuthenticated()')}"  tabindex="0" onclick="logout()" class="nav-link text-uppercase font-weight-bold">Logout</a>
+            <a th:if="${#authorization.expression('isAnonymous()')}" href="/login" class="nav-link text-uppercase font-weight-bold">Login</a>
+
+            <span sec:authorize="isAuthenticated()">
+                Authenticated as <span sec:authentication="name"></span></span>
+        </div>
+    </nav>
+    <script>
+        function logout(){
+            let exit =confirm("Are you sure you want to logout?");
+            if(exit){
+                document.cookie = "Authorization=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                window.location='/login';
+            }
+        }
+    </script>
+</header>
+</body>
+</html>

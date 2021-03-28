@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Books</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+</head>
+<body>
+ <style>
+    #searchForm {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    #search-input {
+        vertical-align: middle;
+        margin: 5px 10px 5px 0;
+        padding: 10px;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        min-width: 80%;
+    }
+
+    .search-form-button {
+        padding: 10px 20px;
+        margin: 10px;
+        cursor: pointer;
+    }
+ </style>
+
+ <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+ <div class="m-3" th:replace="header.html :: header"> </div>
+
+ <div class="row">
+    <div class="col-md-12 m-3">
+        <form id="searchForm">
+            <input id="search-input" name="search" placeholder="Enter name or isbn or author" required type="text"/>
+            <button type="submit" class="btn btn-success search-form-button" id="searchButton">Search</button>
+            <button type="reset" class="btn btn-danger search-form-button" id="resetButton">Reset</button>
+        </form>
+    </div>
+ </div>
+ <div class="row">
+    <div class="col-md-8">
+        <div class="container m-3">
+            <h3>Books List</h3>
+        </div>
+        <div class="text-center" id="noBooks"></div>
+
+        <div class="container m-3" id="booksTable">
+            <table class="table table-bordered table-hover">
+                <thead>
+                <th>ISBN</th>
+                <th>TITLE</th>
+                <th>AUTHOR</th>
+                </thead>
+                <tbody id="booksBody"></tbody>
+            </table>
+           <div id="pages" class="d-flex align-items-center justify-content-center"></div>
+        </div>
+    </div>
+     <div th:if="${#authorization.expression('hasAuthority(''ADD_BOOK'')')}" class="col-md-4">
+        <div class="mr-3 mt-3">
+            <h3>Add book</h3>
+            <form id="addForm" >
+                <div class="form-group">
+                    <h5>Isbn</h5>
+                    <input class="form-control" name="isbn" required type="text"/>
+                </div>
+                <div class="form-group">
+                    <h5>Title</h5>
+                    <input class="form-control" name="title" required type="text"/>
+                </div>
+                <div class="form-group">
+                    <h5>Author</h5>
+                    <input class="form-control" name="author" required type="text"/>
+                </div>
+                <button type="submit" class="btn btn-success">Add Book</button>
+            </form>
+        </div>
+
+    </div>
+ </div>
+
+ <script>
+     function like(id){
+         $.ajax({
+             type: 'PUT',
+             url: '/like/'+id,
+             error: function (error){
+                 alert(error.responseText);
+             }
+         });
+     }
+     function getAllBooks(page=0, size=100){
+         $.ajax({
+             url: '/books?page='+page+'&size='+size,
+             success: function (response) {
+                 showBooks(response.content, 'No books added yet');
+                 showPagesBooks(response.totalPages, response.number);
+             }
+         });
+
+
+     }
+     function getSearchedBooks(params,page=0,size=10){
+         $.ajax({
+             url: '/books?search='+params+'&page='+page+'&size='+size,
+             success: function (response) {
+                 console.log(response.totalPages)
+                 showBooks(response.content, 'No books found')
+                 showPagesSearch(response.totalPages,response.number,params);
+                 }
+         });
+
+     }
+     function showPagesSearch(number,current,params){
+         let $pages = $("#pages");
+         if(number>0){
+         $pages.empty();
+         for (i = 1; i <= number; i++) {
+             if(i==(current+1)){
+                 $pages.append("<button class='btn btn-danger m-3' onclick='getSearchedBooks(\""+params+"\","+(i-1)+")'>"+i+"</button>");
+             }else{
+                 $pages.append("<button class='btn btn-success m-3' onclick='getSearchedBooks(\""+params+"\","+(i-1)+")'>"+i+"</button>");
+             }
+             $pages.show();
+         }
+         }else{
+             $pages.hide();
+         }
+
+     }
+     function showPagesBooks(number,current){
+         let $pages = $("#pages");
+         if(number>0){
+             $pages.empty();
+             for (i = 1; i <= number; i++) {
+                 if(i==(current+1)){
+                     $pages.append("<button class='btn btn-danger m-3' onclick='getAllBooks("+(i-1)+")' >"+i+"</button>");
+                 }else{
+                     $pages.append("<button class='bth btn-success m-3' onclick='getAllBooks("+(i-1)+")'>"+i+"</button>");
+                 }
+                 $pages.show();
+             }
+         }else{
+             $pages.hide();
+         }
+
+     }
+     function showBooks(data, ifNoMessage){
+
+         if(data.length == 0){
+             let $noBooks = $('#noBooks');
+             $noBooks.empty();
+             $noBooks.html('<h3>'+ifNoMessage+'</h3>');
+             $noBooks.show();
+             $('#booksTable').hide();
+         }else {
+             $('#noBooks').hide();
+             $('#booksTable').show();
+             let $books = $('#booksBody');
+             $books.empty();
+             let $favourite = $('#favourite');
+             if($favourite.length>0){
+             data.forEach(function(book){
+                 $books.append('<tr><td>' + book.isbn + '</td><td><a href="/book/'+book.isbn+'">' + book.title + '</a></td><td>' + book.author + '</td><td><button class="btn btn-success" onclick="like('+book.id+')">Like</button></td></tr>>');
+             });}else {
+                 data.forEach(function(book){
+                     $books.append('<tr><td>' + book.isbn + '</td><td><a href="/book/'+book.isbn+'">' + book.title + '</a></td><td>' + book.author + '</td></tr>>');
+                 });
+             }
+
+         }
+
+     }
+     $(function(){
+         window.onload = async function (){
+             await getAllBooks();
+             }
+
+
+         $('#searchForm').on('reset',(e)=>{e.preventDefault();getAllBooks();$('#search-input').val('');});
+         $('#searchForm').submit((e)=>{e.preventDefault();getSearchedBooks($(this).find('[name=search]').val())});
+
+         $('#addForm').submit(function(e){
+             e.preventDefault();
+             $.ajax({
+                 type: 'POST',
+                 url: '/addBook',
+                 contentType: 'application/json',
+                 data: JSON.stringify({
+                     isbn:$(this).find('[name=isbn]').val(),
+                     title: $(this).find('[name=title]').val(),
+                     author:$(this).find('[name=author]').val()
+                 }),
+                 beforeSend: function(xhr) {
+                     xhr.setRequestHeader('Content-Type', 'application/json');
+                  },
+                 success: function (response) {
+                     getAllBooks();
+                     $('#addForm')[0].reset();
+                     $('#searchForm')[0].reset();
+                 },
+                 error: function (error){
+                     alert(error.responseText);
+                 }
+             });
+         });
+
+
+     });
+ </script>
+</body>
+</html>
+
+
