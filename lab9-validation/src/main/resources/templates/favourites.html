@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Favourite</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+</head>
+
+<body>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<div class="m-3" th:replace="header.html :: header"> </div>
+<div class="row">
+    <div class="col-md-8">
+        <div class="container m-3">
+            <h3>Favourite</h3>
+        </div>
+        <div class="text-center" id="noBooks"></div>
+
+        <div class="container m-3" id="booksTable">
+            <table class="table table-bordered table-hover">
+                <thead>
+                <th>ISBN</th>
+                <th>TITLE</th>
+                <th>AUTHOR</th>
+                <th></th>
+                </thead>
+                <tbody id="booksBody"></tbody>
+            </table>
+            <div id="pages" class="d-flex align-items-center justify-content-center"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function getFavouriteBooks(){
+        $.ajax({
+            url: '/favourite-books',
+            success: function (response) {
+                showBooks(response, 'No books added yet');
+            }
+        });
+    }
+    function showBooks(data, ifNoMessage){
+        if(data.length == 0){
+            let $noBooks = $('#noBooks');
+            $noBooks.empty();
+            $noBooks.html('<h3>'+ifNoMessage+'</h3>');
+            $noBooks.show();
+            $('#booksTable').hide();
+        }else {
+            $('#noBooks').hide();
+            $('#booksTable').show();
+            let $books = $('#booksBody');
+            $books.empty();
+            data.forEach(function(book){
+                $books.append('<tr><td>' + book.isbn + '</td><td><a href="/book/'+book.isbn+'">' + book.title + '</a></td><td>' + book.author + '</td><td><button class="btn btn-danger" onclick="unlike('+book.id+')">Unlike</button></td></tr>>');
+            });
+        }
+
+    }
+    function unlike(id){
+        $.ajax({
+            type: 'DELETE',
+            url: '/unlike/'+id,
+            success: function (data, textStatus, request) {
+                getFavouriteBooks();
+            },
+            error: function (error){
+                alert(error.responseText);
+            }
+        });
+    }
+    $(function(){
+        window.onload = async function (){
+            await getFavouriteBooks();
+        }
+
+
+    });
+</script>
+</body>
+</html>
+
+

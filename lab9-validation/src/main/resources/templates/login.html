@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Login</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+    <link href="https://getbootstrap.com/docs/4.0/examples/signin/signin.css" rel="stylesheet" crossorigin="anonymous"/>
+</head>
+<body>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<div th:replace="header.html :: header"> </div>
+<div class="container">
+    <form class="form-signin" id="loginForm">
+        <h2 class="form-signin-heading">Login</h2>
+        <p>
+            <label for="username" class="sr-only">Username</label>
+            <input type="text" id="username" name="username" class="form-control" placeholder="Username" required autofocus>
+        </p>
+        <p>
+            <label for="password" class="sr-only">Password</label>
+            <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
+        </p>
+        <button class="btn btn-lg btn-primary btn-block" type="submit" value="Sign_in">Sign in</button>
+        <button class="btn btn-lg btn-primary btn-block" type="submit" value="Sign_up">Sign up</button>
+    </form>
+</div>
+<script>
+    $(function(){
+        $('#loginForm').submit(function(e){
+            e.preventDefault();
+            $.ajax({
+                type: 'POST',
+                url: e.originalEvent.submitter.value=='Sign_in'?'/login':'/signup',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    login:$(this).find('[name=username]').val(),
+                    password: $(this).find('[name=password]').val()
+                }),
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader('Content-Type', 'application/json')
+                },
+                success: function (data, textStatus, request) {
+                    document.cookie = "Authorization="+request.getResponseHeader('Authorization');
+                    window.location = "/books-list";
+                },
+                error: function (error){
+                    console.log(error)
+                    alert(error.responseText);
+                }
+            });
+        });
+
+
+    });
+</script>
+</body></html>
