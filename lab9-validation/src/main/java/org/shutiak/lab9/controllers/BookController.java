@@ -15,7 +15,7 @@ public class BookController {
     public String login() {
         return "login";
     }
-    @GetMapping("/books-list")
+    @GetMapping({"/books-list","/"})
     public String books() {
         return "books";
     }

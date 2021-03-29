@@ -40,7 +40,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(httpServletRequest, httpServletResponse);
         }catch (RuntimeException e){
             httpServletResponse.setStatus(500);
-            httpServletResponse.sendError(500, "wrong auth token, please clear cookies and relogin");
+            httpServletResponse.sendError(500, "wrong Authorization token, please clear cookies and relogin");
             return;
         }
 
